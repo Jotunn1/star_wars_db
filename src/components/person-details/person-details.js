@@ -5,24 +5,33 @@ import './person-details.css';
 export default class PersonDetails extends Component {
     swapiService = new SwapiService()
     state = {
-        person: {}
+        person: null
+    };
+    componentDidMount() {
+        this.updatePerson();
     }
-    constructor() {
-        super()
-        this.getPersonInfo()
+    componentDidUpdate(prevProps) {
+        if (this.props.personId !== prevProps.personId) {
+            this.updatePerson();
+        }
     }
-    onPersonLoaded = (person) => {
-        this.setState({ person })
-    }
-    getPersonInfo() {
-        const id = Math.floor(Math.random() * 80)
+    updatePerson() {
+        const { personId } = this.props;
+        if (!personId) {
+            return;
+        }
         this.swapiService
-            .getPerson(id)
-            .then(this.onPersonLoaded)
+            .getPerson(personId)
+            .then((person) => {
+                this.setState({ person });
+            });
     }
-
     render() {
-        const { person: { id, name, height, hairColor, gender, eyeColor, birthYear } } = this.state
+        if (!this.state.person) {
+            return <p> 🠐Select a character from a link</p>
+        }
+        const { id, name, gender,
+            birthYear, eyeColor, hairColor, height } = this.state.person;
         return (
             <div className="person-details card">
                 <img className="person-image"
